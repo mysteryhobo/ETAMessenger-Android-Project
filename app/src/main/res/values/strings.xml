@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ETAMessenger Project</string>
+    <string name="EnterDestination">Enter destination:</string>
+    <string name="Map">Map</string>
 </resources>
