@@ -2,4 +2,8 @@
     <string name="app_name">ETAMessenger Project</string>
     <string name="EnterDestination">Enter destination:</string>
     <string name="Map">Map</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="SendMsg">Send Message</string>
+    <string name="EnterMessage">Enter Message:</string>
+    <string name="EnterNumber">Enter Number:</string>
 </resources>
