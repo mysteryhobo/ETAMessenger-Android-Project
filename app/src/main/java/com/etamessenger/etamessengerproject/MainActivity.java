@@ -1,5 +1,7 @@
 package com.etamessenger.etamessengerproject;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -23,8 +26,17 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,25 +47,40 @@ import org.jsoup.select.Elements;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-public class MainActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     TextView mTextView;
-//    GoogleApiClient mGoogleApiClient;
     LocationServiceClient GPSclient;
+    final Context context = this;
+    private static LatLng destination;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        GPSclient = LocationServiceClient.getInstance(this);
+        final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment.setHint("Enter Destination:");
+        autocompleteFragment.setHasOptionsMenu(true);
 
-//        mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                .addConnectionCallbacks(this)
-//                .addOnConnectionFailedListener(this)
-//                .addApi(LocationServices.API)
-//                .build();
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                destination = place.getLatLng();
+                Log.i(TAG, "Place: " + place.getName() + ", latLong: " + destination.toString());
+                Log.i(TAG, "response");
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });
+
+
+        GPSclient = LocationServiceClient.getInstance(this);
 
 
         mTextView = (TextView) findViewById(R.id.responseHolder);
@@ -65,8 +92,8 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View v) {
 //                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
 //                startActivity(intent);
-                startRequest();
-                getCurrentLocation();
+                getTravelTime(getCurrentLocation(), getCurrentLocation());
+
             }
         });
 
@@ -85,7 +112,8 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
-    public void getCurrentLocation() {
+    public LatLng getCurrentLocation() {
+        LatLng currentLocation = null;
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -94,33 +122,41 @@ public class MainActivity extends AppCompatActivity implements
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            return;
+        } else {
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(GPSclient.getGoogleApi());
+            if (mLastLocation != null) {
+                Log.i(TAG, "getCurrentLocation Lat: " + String.valueOf(mLastLocation.getLatitude()));
+                Log.i(TAG, "getCurrentLocation Long: " + String.valueOf(mLastLocation.getLongitude()));
+                currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            }
         }
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(GPSclient.getGoogleApi());
-        if (mLastLocation != null) {
-            Log.i(TAG, "getCurrentLocation Lat: " + String.valueOf(mLastLocation.getLatitude()));
-            Log.i(TAG, "getCurrentLocation Long: " + String.valueOf(mLastLocation.getLongitude()));
-        }
+        return currentLocation;
     }
 
     protected void onStart() {
-//        mGoogleApiClient.connect();
         GPSclient.connect();
         super.onStart();
     }
 
     protected void onStop() {
-//        mGoogleApiClient.disconnect();
         GPSclient.disconnect();
         super.onStop();
     }
 
 
 
-    public void startRequest() {
+    public void getTravelTime(LatLng currentLocation, LatLng destination) {
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=2022+Cedarwood+Court+Pickering+ON&destinations=1099+Glenbourne+drive+Oshawa+ON&key=";
+//        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=2022+Cedarwood+Court+Pickering+ON&destinations=1099+Glenbourne+drive+Oshawa+ON&key=";
+        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="
+                + currentLocation.latitude + ","
+                + currentLocation.longitude
+                + "&destinations="
+                + destination.latitude + ","
+                + destination.longitude
+                + "&key=";
+
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
@@ -130,24 +166,9 @@ public class MainActivity extends AppCompatActivity implements
                         try {
                             Log.i(TAG, "onResponse: " + response.toString());
                             mTextView.setText(response.toString());
-
                             //yo dawg so I heard you like JSONs
                             int totalResult = (int) ((JSONObject) ((JSONObject) ((JSONObject) response.getJSONArray("rows").getJSONObject(0)).getJSONArray("elements").get(0)).get("duration")).get("value");
-
-//                            JSONArray resultsHolder = response.getJSONArray("destination_addresses");
-//                            JSONArray resultsHolder2 = response.getJSONArray("rows");
-//                            JSONObject resultsHolder3 = (JSONObject) resultsHolder2.get(0);
-//                            JSONArray resultsHolder4 = resultsHolder3.getJSONArray("elements");
-//                            JSONObject resultsHolder5 = (JSONObject) resultsHolder4.get(0);
-//                            JSONObject resultsHolder6 = (JSONObject) resultsHolder5.get("duration");
-//                            int resultsHolder7 = (int) resultsHolder6.get("value");
-
-
-
                             Log.i(TAG, "onResponse: " + totalResult);
-//                            mTextView.setText(response.toString());
-//                            JSONArray results = resultsHolder.getJSONArray("results");
-//                            JSONObject result1 = (JSONObject) resultsHolder.get(0);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -165,7 +186,6 @@ public class MainActivity extends AppCompatActivity implements
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
-//        UMLSConnection.getInstance(context).addToRequestQueue(jsObjRequest);
         queue.add(jsObjRequest);
 
 
