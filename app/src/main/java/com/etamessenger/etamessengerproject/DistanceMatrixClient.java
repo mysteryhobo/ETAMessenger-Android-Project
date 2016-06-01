@@ -22,6 +22,7 @@ import org.json.JSONObject;
 public class DistanceMatrixClient {
     private static final String TAG = DistanceMatrixClient.class.getSimpleName();
     private static DistanceMatrixClient instance;
+    OnResultListener listener = null;
 
     public static DistanceMatrixClient getInstance() {
         if (instance == null) {
@@ -35,7 +36,11 @@ public class DistanceMatrixClient {
         void onTraveltimeResult(int timeInSeconds);
     }
 
-    public void getTravelTime(final LatLng currentLocation, final LatLng destination, OnResultListener callBack, Context context) {
+    public void setCallBack(OnResultListener listener) {
+        this.listener = listener;
+    }
+
+    public void getTravelTime(final LatLng currentLocation, final LatLng destination, Context context, String transportMode) {
         RequestQueue queue = Volley.newRequestQueue(context);
         //// TODO: 31/05/16 get travel settings and use them here (possibly pass them as parameters)
         String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="
@@ -44,6 +49,7 @@ public class DistanceMatrixClient {
                 + "&destinations="
                 + destination.latitude + ","
                 + destination.longitude
+                + "&mode=" + transportMode
                 + "&key=";
 
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
@@ -54,8 +60,10 @@ public class DistanceMatrixClient {
                     public void onResponse(JSONObject response) {
                         try {
                             //yo dawg so I heard you like JSONs
+                            Log.i(TAG, "onResponse: " + response.toString());
                             int totalResult = (int) ((JSONObject) ((JSONObject) ((JSONObject) response.getJSONArray("rows").getJSONObject(0)).getJSONArray("elements").get(0)).get("duration")).get("value");
                             logResponse(currentLocation, destination, response, totalResult);
+                            if (listener != null) listener.onTraveltimeResult(totalResult);
                         } catch (Exception e) {
                             // TODO: 31/05/16 handle error
                             e.printStackTrace();
@@ -79,9 +87,9 @@ public class DistanceMatrixClient {
     }
 
     private void logResponse(LatLng currentPosition, LatLng destination, JSONObject response, int timeInSeconds) {
-        Log.i(TAG, "Distance Matrix Response: \n " +
+        Log.i(TAG, "Distance Matrix Response: \n" +
                 "Current Location: " + currentPosition.toString() + "\n" +
-                "destination Location: " + destination.toString() + "\n" +
+                "Destination Location: " + destination.toString() + "\n" +
                 "Response: " + response.toString() + "\n" +
                 "Time: " + timeInSeconds);
     }

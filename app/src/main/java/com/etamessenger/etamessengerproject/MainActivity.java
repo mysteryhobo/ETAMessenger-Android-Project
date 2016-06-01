@@ -1,9 +1,17 @@
 package com.etamessenger.etamessengerproject;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Contacts;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -12,62 +20,58 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, DistanceMatrixClient.OnResultListener {
     private static final String TAG = MainActivity.class.getSimpleName();
+    static final int REQUEST_CONTACT = 1;
     TextView mTextView;
     LocationServiceClient GPSclient;
     final Context context = this;
     private static LatLng destination;
+    private ProgressBar spinner;
+    DistanceMatrixClient distanceClient;
+    private String travelMode = "driving";
+    private Place currentDestination;
+    private ImageButton drivingButton;
+    private ImageButton bikingButton;
+    private ImageButton walkingButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        GPSclient = LocationServiceClient.getInstance(this);
+        mTextView = (TextView) findViewById(R.id.responseHolder);
+
+        spinner = (ProgressBar) findViewById(R.id.progressBar1);
         final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
         autocompleteFragment.setHint("Enter Destination:");
         autocompleteFragment.setHasOptionsMenu(true);
-
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
+                enableTravelModeButtons(false);
+                spinner.setVisibility(View.VISIBLE);
+                currentDestination = place;
                 destination = place.getLatLng();
+                distanceClient.getTravelTime(getCurrentLocation(), destination, context, travelMode);
                 Log.i(TAG, "Place: " + place.getName() + ", latLong: " + destination.toString());
                 Log.i(TAG, "response");
             }
@@ -78,13 +82,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
+        
+        TransitButtonListener transitButtonListener = new TransitButtonListener();
+        drivingButton = (ImageButton) findViewById(R.id.btn_driving);
+        assert drivingButton != null;
+        drivingButton.setOnClickListener(transitButtonListener);
+        bikingButton = (ImageButton) findViewById(R.id.btn_bicycling);
+        assert bikingButton != null;
+        bikingButton.setOnClickListener(transitButtonListener);
+        walkingButton = (ImageButton) findViewById(R.id.btn_walking);
+        assert walkingButton != null;
+        walkingButton.setOnClickListener(transitButtonListener);
 
-
-        GPSclient = LocationServiceClient.getInstance(this);
-
-
-        mTextView = (TextView) findViewById(R.id.responseHolder);
-
+        distanceClient = DistanceMatrixClient.getInstance();
+        distanceClient.setCallBack(this);
         Button MapsBtn = (Button) findViewById(R.id.btn_maps);
         assert MapsBtn != null;
         MapsBtn.setOnClickListener(new View.OnClickListener() {
@@ -92,8 +103,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onClick(View v) {
 //                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
 //                startActivity(intent);
-                getTravelTime(getCurrentLocation(), getCurrentLocation());
+                distanceClient.getTravelTime(getCurrentLocation(), getCurrentLocation(), context, travelMode);
+            }
+        });
 
+        Button contactButton = (Button) findViewById(R.id.btn_selectContact);
+        assert contactButton != null;
+        contactButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -110,6 +132,69 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 smsManager.sendTextMessage("+1" + number.getText().toString(), null, message.getText().toString(), null, null);
             }
         });
+    }
+    
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // TODO Auto-generated method stub
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == REQUEST_CONTACT) {
+            if (resultCode == RESULT_OK) {
+                Uri contactData = data.getData();
+                Cursor cursor = managedQuery(contactData, null, null, null, null);
+                cursor.moveToFirst();
+
+                String number = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+
+                //contactName.setText(name);
+                mTextView.setText("name: " + name + "num: " + number);
+                //contactEmail.setText(email);
+            }
+        }
+    }
+
+    private void enableTravelModeButtons(boolean enable) {
+        drivingButton.setEnabled(enable);
+        bikingButton.setEnabled(enable);
+        walkingButton.setEnabled(enable);
+    }
+    
+    private class TransitButtonListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            String newTrasitMode = null;
+            switch (v.getId()) {
+                //// TODO: 01/06/16 add button highlighting
+                case R.id.btn_driving:
+                    newTrasitMode = "driving";
+                    break;
+                case R.id.btn_bicycling:
+                    newTrasitMode = "bicycling";
+                    break;
+                case R.id.btn_walking:
+                    newTrasitMode = "walking";
+                    break;
+                default:
+                    Log.i(TAG, "onClick: Invalid btn press handled");
+            }
+            if (!travelMode.equals(newTrasitMode)) {
+                spinner.setVisibility(View.VISIBLE);
+                travelMode = newTrasitMode;
+                enableTravelModeButtons(false);
+                distanceClient.getTravelTime(getCurrentLocation(), destination, context, travelMode);
+            }
+        }
+    }
+
+    @Override
+    public void onTraveltimeResult(int timeInSeconds) {
+        Log.i(TAG, "onTraveltimeResult: Received Result:" + timeInSeconds);
+        mTextView.setText("Time Results: " + timeInSeconds + " Mins: " + timeInSeconds/60);
+        spinner.setVisibility(View.GONE);
+        enableTravelModeButtons(true);
     }
 
     public LatLng getCurrentLocation() {
@@ -143,54 +228,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onStop();
     }
 
-
-
-    public void getTravelTime(LatLng currentLocation, LatLng destination) {
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-//        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=2022+Cedarwood+Court+Pickering+ON&destinations=1099+Glenbourne+drive+Oshawa+ON&key=";
-        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="
-                + currentLocation.latitude + ","
-                + currentLocation.longitude
-                + "&destinations="
-                + destination.latitude + ","
-                + destination.longitude
-                + "&key=";
-
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            Log.i(TAG, "onResponse: " + response.toString());
-                            mTextView.setText(response.toString());
-                            //yo dawg so I heard you like JSONs
-                            int totalResult = (int) ((JSONObject) ((JSONObject) ((JSONObject) response.getJSONArray("rows").getJSONObject(0)).getJSONArray("elements").get(0)).get("duration")).get("value");
-                            Log.i(TAG, "onResponse: " + totalResult);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                    }
-                });
-
-        jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(
-                20000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        queue.add(jsObjRequest);
-
-
-    }
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
 
@@ -205,39 +242,4 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-
-//    public void startRequest() {
-//        RequestQueue queue = Volley.newRequestQueue(this);
-////        String url = "https://maps.googleapis.com/maps/api/directions/json?origin=2022+Cedarwood+Court+Pickering+ON&destination=1099+Glenbourne+drive+Oshawa+ON&key=";
-//        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=2022+Cedarwood+Court+Pickering+ON&destinations=1099+Glenbourne+drive+Oshawa+ON&key=";
-//        JsonObjectRequest request = new JsonObjectRequest
-//                (Request.Method.GET, url, (String) null, new Response.Listener<JSONObject>() {
-//
-//        })
-//
-//
-//
-//
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-//            @Override
-//            public void onResponse(String response) {
-//                mTextView.setText("Response is: " + response);
-//                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-//                Document doc = Jsoup.parse(response);
-//                Elements elements = doc.select("origin_addresses");
-//                JSONArray resultsHolder = response.getJSONArray("result");
-//                Log.i(TAG, "onResponse: " + elements.toString());
-////                elements = doc.select("elements");
-////                tgt = elements.attr("action");
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.i(TAG, "onErrorResponse: " + error.toString());
-//                error.printStackTrace();
-////                mTextView.setText("That didn't work!");
-//            }
-//        });
-//        queue.add(stringRequest);
-//    }
 }

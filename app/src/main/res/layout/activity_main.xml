@@ -32,6 +32,49 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/btn_driving"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_time_to_leave_black_24dp"
+            />
+
+        <ImageButton
+            android:id="@+id/btn_bicycling"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_directions_bike_black_24dp"
+            />
+
+        <ImageButton
+            android:id="@+id/btn_walking"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_directions_walk_black_24dp"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_selectContact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="select Contact"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
