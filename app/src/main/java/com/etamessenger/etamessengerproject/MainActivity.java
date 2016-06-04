@@ -14,12 +14,16 @@ import android.provider.Contacts;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -27,6 +31,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -36,6 +41,9 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, DistanceMatrixClient.OnResultListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     static final int REQUEST_CONTACT = 1;
@@ -44,12 +52,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     final Context context = this;
     private static LatLng destination;
     private ProgressBar spinner;
-    DistanceMatrixClient distanceClient;
+    private DistanceMatrixClient distanceClient;
     private String travelMode = "driving";
     private Place currentDestination;
     private ImageButton drivingButton;
     private ImageButton bikingButton;
     private ImageButton walkingButton;
+    private RecyclerView messageList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +67,55 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         GPSclient = LocationServiceClient.getInstance(this);
         mTextView = (TextView) findViewById(R.id.responseHolder);
+
+        /**
+         * Setting up message List
+         */
+        messageList = (RecyclerView) findViewById(R.id.RV_messageList);
+        assert messageList != null;
+        messageList.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        messageList.setLayoutManager(llm);
+        Message msg1 = new Message("Leaving now" , 30);
+        Message msg2 = new Message("Be there in 5", 5);
+        Message msg3 = new Message("Here", 0);
+        final List<Message> messages = new ArrayList<Message>();
+        messages.add(msg1);
+        messages.add(msg2);
+        messages.add(msg3);
+        final MessageItemAdaptor msgAdaptor = new MessageItemAdaptor(messages, context);
+        messageList.setAdapter(msgAdaptor);
+
+        SwipeableRecyclerViewTouchListener swipeTouchListener =
+                new SwipeableRecyclerViewTouchListener(messageList,
+                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
+                            @Override
+                            public boolean canSwipeLeft(int position) {
+                                return true;
+                            }
+
+                            @Override
+                            public boolean canSwipeRight(int position) {
+                                return true;
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeLeft(final RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                deleteMessage(messages, reverseSortedPositions, msgAdaptor);
+
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                deleteMessage(messages, reverseSortedPositions, msgAdaptor);
+                            }
+                        });
+
+        messageList.addOnItemTouchListener(swipeTouchListener);
+
+
+
 
         spinner = (ProgressBar) findViewById(R.id.progressBar1);
         final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -133,6 +191,44 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
     }
+
+    public void deleteMessage(List<Message> messages, int[] reverseSortedPositions, MessageItemAdaptor msgAdaptor) {
+        Message deletedMessage = null;
+        int deletedPosition = -1;
+        for (int position : reverseSortedPositions) {
+            deletedMessage = messages.get(position);
+            deletedPosition = position;
+            messages.remove(position);
+            msgAdaptor.notifyItemRemoved(position);
+        }
+        msgAdaptor.notifyDataSetChanged();
+        Snackbar snackbar = Snackbar
+                .make(messageList, "Message deleted", Snackbar.LENGTH_LONG)
+                .setAction("UNDO", new onUndoListener(deletedMessage, deletedPosition, messages, msgAdaptor));
+
+        snackbar.show();
+    }
+
+    public class onUndoListener implements View.OnClickListener {
+        Message msg;
+        int position;
+        List<Message> messages;
+        MessageItemAdaptor msgAdaptor;
+
+        public onUndoListener(Message msg, int position, List<Message> messages, MessageItemAdaptor msgAdaptor) {
+            this.msg = msg;
+            this.position = position;
+            this.messages = messages;
+            this.msgAdaptor = msgAdaptor;
+        }
+        @Override
+        public void onClick(View v) {
+            if (msg != null && position != -1) {
+                messages.add(position, msg);
+                msgAdaptor.notifyDataSetChanged();
+            }
+        }
+    }
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -184,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 spinner.setVisibility(View.VISIBLE);
                 travelMode = newTrasitMode;
                 enableTravelModeButtons(false);
-                distanceClient.getTravelTime(getCurrentLocation(), destination, context, travelMode);
+                if (destination != null) distanceClient.getTravelTime(getCurrentLocation(), destination, context, travelMode);
             }
         }
     }

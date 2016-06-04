@@ -43,6 +43,10 @@ public class DistanceMatrixClient {
     public void getTravelTime(final LatLng currentLocation, final LatLng destination, Context context, String transportMode) {
         RequestQueue queue = Volley.newRequestQueue(context);
         //// TODO: 31/05/16 get travel settings and use them here (possibly pass them as parameters)
+        if (currentLocation == null) System.out.println("11111");
+        if (destination == null) System.out.println("2222222");
+        if (context == null) System.out.println("3333333");
+        if (transportMode == null) System.out.println("4444444");
         String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="
                 + currentLocation.latitude + ","
                 + currentLocation.longitude
