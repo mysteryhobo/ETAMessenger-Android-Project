@@ -55,8 +55,8 @@
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
             android:layout_weight="1"
-            android:background="@drawable/roundcorner"
-            android:src="@drawable/ic_time_to_leave_black_24dp"
+            android:background="@drawable/btn_blue_roundcorner"
+            android:src="@drawable/ic_car_white"
             />
 
         <ImageButton
@@ -67,8 +67,8 @@
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
             android:layout_weight="1"
-            android:background="@drawable/roundcorner"
-            android:src="@drawable/ic_directions_bike_black_24dp"
+            android:background="@drawable/btn_white_roundcorner"
+            android:src="@drawable/ic_bike_primary"
             />
 
 
@@ -80,8 +80,8 @@
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
             android:layout_weight="1"
-            android:background="@drawable/roundcorner"
-            android:src="@drawable/ic_directions_walk_black_24dp"
+            android:background="@drawable/btn_white_roundcorner"
+            android:src="@drawable/ic_walk_primary"
         />
         <!--android:background="?attr/selectableItemBackground | #1E88E5"-->
     </LinearLayout>

@@ -145,12 +145,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         drivingButton = (ImageButton) findViewById(R.id.btn_driving);
         assert drivingButton != null;
         drivingButton.setOnClickListener(transitButtonListener);
+
         bikingButton = (ImageButton) findViewById(R.id.btn_bicycling);
         assert bikingButton != null;
         bikingButton.setOnClickListener(transitButtonListener);
+        bikingButton.setBackgroundResource(R.drawable.btn_white_roundcorner);
+
         walkingButton = (ImageButton) findViewById(R.id.btn_walking);
         assert walkingButton != null;
         walkingButton.setOnClickListener(transitButtonListener);
+        walkingButton.setBackgroundResource(R.drawable.btn_white_roundcorner);
+
 
         distanceClient = DistanceMatrixClient.getInstance();
         distanceClient.setCallBack(this);
