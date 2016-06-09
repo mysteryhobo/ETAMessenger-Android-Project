@@ -1,16 +1,12 @@
 package com.etamessenger.etamessengerproject;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
-import android.provider.Contacts;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,17 +16,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -59,6 +57,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ImageButton bikingButton;
     private ImageButton walkingButton;
     private RecyclerView messageList;
+    private static final int AT_LOCATAION = 0;
+    private ArrayList<Contact> contacts = new ArrayList<>();
+    private MessageItemAdaptor msgAdaptor;
+    private Button startButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,45 +79,75 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         messageList.setLayoutManager(llm);
-        Message msg1 = new Message("Leaving now" , 30);
-        Message msg2 = new Message("Be there in 5", 5);
-        Message msg3 = new Message("Here", 0);
-        final List<Message> messages = new ArrayList<Message>();
-        messages.add(msg1);
-        messages.add(msg2);
-        messages.add(msg3);
-        final MessageItemAdaptor msgAdaptor = new MessageItemAdaptor(messages, context);
-        messageList.setAdapter(msgAdaptor);
 
-        SwipeableRecyclerViewTouchListener swipeTouchListener =
-                new SwipeableRecyclerViewTouchListener(messageList,
-                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
-                            @Override
-                            public boolean canSwipeLeft(int position) {
-                                return true;
-                            }
+//        LinearLayout contactsHolder = (LinearLayout) findViewById(R.id.LL_contacts_holder);
+//        View child = getLayoutInflater().inflate(R.layout.item_contact, null);
+//        ImageView image = (ImageView) child.findViewById(R.id.image_view_contact);
+//        TextDrawable drawable = TextDrawable.builder()
+//                .beginConfig()
+//                .textColor(getResources().getColor(R.color.colorPrimary))
+//                .fontSize(70) /* size in px */
+//                .bold()
+//                .endConfig()
+//                .buildRoundRect("E", context.getResources().getColor(R.color.white), 80);
+//        image.setImageDrawable(drawable);
+//
+//        contactsHolder.addView(child);
+//
+//        View child2 = getLayoutInflater().inflate(R.layout.item_contact, null);
+//        ImageView image2 = (ImageView) child2.findViewById(R.id.image_view_contact);
+//        TextDrawable drawable2 = TextDrawable.builder()
+//                .beginConfig()
+//                .textColor(getResources().getColor(R.color.colorPrimary))
+//                .fontSize(70) /* size in px */
+//                .bold()
+//                .endConfig()
+//                .buildRoundRect("E", context.getResources().getColor(R.color.white), 80);
+//        image2.setImageDrawable(drawable2);
 
-                            @Override
-                            public boolean canSwipeRight(int position) {
-                                return true;
-                            }
+//        contactsHolder.addView(child2);
 
-                            @Override
-                            public void onDismissedBySwipeLeft(final RecyclerView recyclerView, int[] reverseSortedPositions) {
-                                deleteMessage(messages, reverseSortedPositions, msgAdaptor);
+//        final List<Message> messages = generateMessages(45); //// TODO: 05/06/16 fix default displayed messages
+//        final List<Message> messages = new ArrayList<>();
+//        msgAdaptor = new MessageItemAdaptor(messages, context);
+//        messageList.setAdapter(msgAdaptor);
 
-                            }
+//        SwipeableRecyclerViewTouchListener swipeTouchListener =
+//                new SwipeableRecyclerViewTouchListener(messageList,
+//                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
+//                            @Override
+//                            public boolean canSwipeLeft(int position) {
+//                                return true;
+//                            }
+//
+//                            @Override
+//                            public boolean canSwipeRight(int position) {
+//                                return true;
+//                            }
+//
+//                            @Override
+//                            public void onDismissedBySwipeLeft(final RecyclerView recyclerView, int[] reverseSortedPositions) {
+//                                deleteMessage(messages, reverseSortedPositions, msgAdaptor);
+//
+//                            }
+//
+//                            @Override
+//                            public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
+//                                deleteMessage(messages, reverseSortedPositions, msgAdaptor);
+//                            }
+//                        });
+//
+//        messageList.addOnItemTouchListener(swipeTouchListener);
 
-                            @Override
-                            public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
-                                deleteMessage(messages, reverseSortedPositions, msgAdaptor);
-                            }
-                        });
 
-        messageList.addOnItemTouchListener(swipeTouchListener);
-
-
-
+        startButton = (Button) findViewById(R.id.btn_start);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TripTask task = new TripTask();
+                task.doInBackground(mTextView);
+            }
+        });
 
         spinner = (ProgressBar) findViewById(R.id.progressBar1);
         final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -129,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 spinner.setVisibility(View.VISIBLE);
                 currentDestination = place;
                 destination = place.getLatLng();
-                distanceClient.getTravelTime(getCurrentLocation(), destination, context, travelMode);
+                distanceClient.getTravelTime(destination, context, travelMode);
                 Log.i(TAG, "Place: " + place.getName() + ", latLong: " + destination.toString());
                 Log.i(TAG, "response");
             }
@@ -140,7 +172,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
-        
+
+
         TransitButtonListener transitButtonListener = new TransitButtonListener();
         drivingButton = (ImageButton) findViewById(R.id.btn_driving);
         assert drivingButton != null;
@@ -153,9 +186,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         walkingButton = (ImageButton) findViewById(R.id.btn_walking);
         assert walkingButton != null;
         walkingButton.setOnClickListener(transitButtonListener);
+        setTravelModeButtonsState(null, travelMode);
 
-
-        distanceClient = DistanceMatrixClient.getInstance();
+        distanceClient = DistanceMatrixClient.getInstance(this);
         distanceClient.setCallBack(this);
         Button MapsBtn = (Button) findViewById(R.id.btn_maps);
         assert MapsBtn != null;
@@ -164,7 +197,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onClick(View v) {
 //                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
 //                startActivity(intent);
-                distanceClient.getTravelTime(getCurrentLocation(), getCurrentLocation(), context, travelMode);
+//                distanceClient.getTravelTime(getCurrentLocation(), getCurrentLocation(), context, travelMode);
+
             }
         });
 
@@ -193,6 +227,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 smsManager.sendTextMessage("+1" + number.getText().toString(), null, message.getText().toString(), null, null);
             }
         });
+    }
+
+    private ArrayList<Message> generateMessages(int travelTime) {
+        int timeInMinutes = travelTime / 60;
+        ArrayList<Message> messages = new ArrayList<>();
+        messages.add(new Message(getResources().getString(R.string.leaving_now).replaceAll("%", String.valueOf(timeInMinutes)), timeInMinutes));
+        if (timeInMinutes > 120) {
+            messages.add(new Message(getResources().getString(R.string.aboutXAway).replaceAll("%", "60"), 60));
+            messages.add(new Message(getResources().getString(R.string.illBeThere).replaceAll("%", "15"), 15));
+        } else if (timeInMinutes > 60) {
+            messages.add(new Message(getResources().getString(R.string.illBeThere).replaceAll("%", "15"), 15));
+        } else if (timeInMinutes > 15) {
+            messages.add(new Message(getResources().getString(R.string.illBeThere).replaceAll("%", "5"), 5));
+        }
+        messages.add(new Message(getResources().getString(R.string.here), AT_LOCATAION));
+        return messages;
     }
 
     public void deleteMessage(List<Message> messages, int[] reverseSortedPositions, MessageItemAdaptor msgAdaptor) {
@@ -232,6 +282,44 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         }
     }
+
+    private void setTravelModeButtonsState(String prevTravelMode, String travelMode) {
+
+        if (prevTravelMode != null) {
+            switch (prevTravelMode) {
+                case "driving":
+                    drivingButton.setImageResource(R.drawable.ic_car_primary);
+                    drivingButton.setBackgroundResource(R.drawable.btn_white_roundcorner);
+                    break;
+                case "bicycling":
+                    bikingButton.setImageResource(R.drawable.ic_bike_primary);
+                    bikingButton.setBackgroundResource(R.drawable.btn_white_roundcorner);
+                    break;
+                case "walking":
+                    walkingButton.setImageResource(R.drawable.ic_walk_primary);
+                    walkingButton.setBackgroundResource(R.drawable.btn_white_roundcorner);
+                    break;
+                default: break;
+            }
+        }
+
+        switch (travelMode) {
+            case "driving":
+                drivingButton.setImageResource(R.drawable.ic_car_white);
+                drivingButton.setBackgroundResource(R.drawable.btn_blue_roundcorner);
+                break;
+            case "bicycling":
+                bikingButton.setImageResource(R.drawable.ic_bike_white);
+                bikingButton.setBackgroundResource(R.drawable.btn_blue_roundcorner);
+                break;
+            case "walking":
+                walkingButton.setImageResource(R.drawable.ic_walk_white);
+                walkingButton.setBackgroundResource(R.drawable.btn_blue_roundcorner);
+                break;
+        }
+    }
+
+
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -248,7 +336,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 
                 //contactName.setText(name);
-                mTextView.setText("name: " + name + "num: " + number);
+
+                contacts.add(new Contact(name, number));
+                mTextView.setText("Name: " + name + ", Num: " + number);
                 //contactEmail.setText(email);
             }
         }
@@ -264,26 +354,27 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         @Override
         public void onClick(View v) {
-            String newTrasitMode = null;
+            String newTravelMode = null;
             switch (v.getId()) {
                 //// TODO: 01/06/16 add button highlighting
                 case R.id.btn_driving:
-                    newTrasitMode = "driving";
+                    newTravelMode = "driving";
                     break;
                 case R.id.btn_bicycling:
-                    newTrasitMode = "bicycling";
+                    newTravelMode = "bicycling";
                     break;
                 case R.id.btn_walking:
-                    newTrasitMode = "walking";
+                    newTravelMode = "walking";
                     break;
                 default:
                     Log.i(TAG, "onClick: Invalid btn press handled");
             }
-            if (!travelMode.equals(newTrasitMode)) {
+            if (!travelMode.equals(newTravelMode)) {
+                setTravelModeButtonsState(travelMode, newTravelMode);
                 spinner.setVisibility(View.VISIBLE);
-                travelMode = newTrasitMode;
+                travelMode = newTravelMode;
                 enableTravelModeButtons(false);
-                if (destination != null) distanceClient.getTravelTime(getCurrentLocation(), destination, context, travelMode);
+                if (destination != null) distanceClient.getTravelTime(destination, context, travelMode);
             }
         }
     }
@@ -292,38 +383,72 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onTraveltimeResult(int timeInSeconds) {
         Log.i(TAG, "onTraveltimeResult: Received Result:" + timeInSeconds);
         mTextView.setText("Time Results: " + timeInSeconds + " Mins: " + timeInSeconds/60);
+
+        final List<Message> messages = generateMessages(timeInSeconds);
+        msgAdaptor = new MessageItemAdaptor(messages, context);
+        messageList.setAdapter(msgAdaptor);
+
+        SwipeableRecyclerViewTouchListener swipeTouchListener =
+                new SwipeableRecyclerViewTouchListener(messageList,
+                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
+                            @Override
+                            public boolean canSwipeLeft(int position) {
+                                return true;
+                            }
+
+                            @Override
+                            public boolean canSwipeRight(int position) {
+                                return true;
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeLeft(final RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                deleteMessage(messages, reverseSortedPositions, msgAdaptor);
+
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                deleteMessage(messages, reverseSortedPositions, msgAdaptor);
+                            }
+                        });
+
+        messageList.addOnItemTouchListener(swipeTouchListener);
+
         spinner.setVisibility(View.GONE);
         enableTravelModeButtons(true);
     }
 
-    public LatLng getCurrentLocation() {
-        LatLng currentLocation = null;
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-        } else {
-            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(GPSclient.getGoogleApi());
-            if (mLastLocation != null) {
-                Log.i(TAG, "getCurrentLocation Lat: " + String.valueOf(mLastLocation.getLatitude()));
-                Log.i(TAG, "getCurrentLocation Long: " + String.valueOf(mLastLocation.getLongitude()));
-                currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            }
-        }
-        return currentLocation;
-    }
+//    public LatLng getCurrentLocation() {
+//        LatLng currentLocation = null;
+//        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//        } else {
+//            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(GPSclient.getGoogleApi());
+//            if (mLastLocation != null) {
+//                Log.i(TAG, "getCurrentLocation Lat: " + String.valueOf(mLastLocation.getLatitude()));
+//                Log.i(TAG, "getCurrentLocation Long: " + String.valueOf(mLastLocation.getLongitude()));
+//                currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+//            }
+//        }
+//        return currentLocation;
+//    }
 
     protected void onStart() {
-        GPSclient.connect();
+        distanceClient.connect();
+//        GPSclient.connect();
         super.onStart();
     }
 
     protected void onStop() {
-        GPSclient.disconnect();
+        distanceClient.disconnect();
+//        GPSclient.disconnect();
         super.onStop();
     }
 

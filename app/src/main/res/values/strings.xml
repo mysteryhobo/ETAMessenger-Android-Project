@@ -6,4 +6,11 @@
     <string name="SendMsg">Send Message</string>
     <string name="EnterMessage">Enter Message:</string>
     <string name="EnterNumber">Enter Number:</string>
+    <string name="leaving_now">I\'m Leaving now, I\'ll be there in % minutes.</string>
+    <string name="here">I\'m here!</string>
+    <string name="aboutXAway">I\'m about % minutes away.</string>
+    <string name="illBeThere">I\'ll be there in % minutes.</string>
+    <string name="start">START</string>
+    <string name="messageText">Message Text</string>
+    <string name="contactName">Contact Name</string>
 </resources>

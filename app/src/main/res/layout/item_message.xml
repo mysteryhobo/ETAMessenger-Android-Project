@@ -16,11 +16,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
+            <EditText
                 android:id="@+id/textView_messageText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Name"
+                android:text="@string/messageText"
                 android:gravity="center_vertical"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="4dp"
@@ -29,7 +29,7 @@
                 />
 
             <ImageView android:layout_width="80dp"
-                android:layout_height="40dp"
+                android:layout_height="match_parent"
                 android:id="@+id/image_view"/>
         </LinearLayout>
 
