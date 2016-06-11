@@ -1,8 +1,10 @@
 package com.etamessenger.etamessengerproject;
 
+import android.content.Context;
 import android.widget.TextView;
 
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
@@ -11,18 +13,49 @@ import java.util.ArrayList;
  */
 public class Trip {
     Place destination;
+    LatLng startLocation;
     ArrayList<Message> messages = new ArrayList<>();
     ArrayList<Contact> contacts = new ArrayList<>();
     TextView mTextView = null;
+    Context context;
+    String travelmode;
+    int totalTravelTime;
 
-    public Trip(Place destination) {
-        this.destination = destination;
+    public Trip(Context context, String travelmode) {
+        this.context = context;
+        this.travelmode = travelmode;
     }
 
-    public Trip(Place destination, ArrayList<Message> messages, ArrayList<Contact> contacts) {
-        this.destination = destination;
-        this.messages = messages;
-        this.contacts = contacts;
+    public LatLng getStartLocation() {
+        return startLocation;
+    }
+
+    public void setStartLocation(LatLng startLocation) {
+        this.startLocation = startLocation;
+    }
+
+    public int getTotalTravelTime() {
+        return totalTravelTime;
+    }
+
+    public void setTotalTravelTime(int totalTravelTime) {
+        this.totalTravelTime = totalTravelTime;
+    }
+
+    public String getTravelmode() {
+        return travelmode;
+    }
+
+    public void setTravelmode(String travelmode) {
+        this.travelmode = travelmode;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     public TextView getmTextView() {
