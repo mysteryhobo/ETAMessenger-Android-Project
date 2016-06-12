@@ -32,17 +32,6 @@ public class TripTask extends AsyncTask<Trip, Void, Boolean> implements Distance
         distanceClient.connect();
         distanceClient.setCallBack(this);
         distanceClient.getTravelTime(trip);
-
-        new CountDownTimer(30000, 1000) {
-
-            public void onTick(long millisUntilFinished) {
-                mTextField.setText("next check: " + millisUntilFinished / 1000);
-            }
-
-            public void onFinish() {
-                mTextField.setText("done!");
-            }
-        }.start();
         return false;
     }
 
@@ -52,14 +41,20 @@ public class TripTask extends AsyncTask<Trip, Void, Boolean> implements Distance
         int countDownTime = 0;
             if (timeTillNextMessage > MINUTES_5) countDownTime = (timeTillNextMessage / 3) * 2;
             else if (timeTillNextMessage > MINUTES_2) countDownTime = (MINUTES_1);
-//            else ()
+            else if (timeTillNextMessage > MINUTES_1) countDownTime = (30);
+            else countDownTime = (10);
 
+            new CountDownTimer(1000 * countDownTime, 1000) {
 
-                if (messages.size() == 0) {
-                    //todo end application here
-                } else {
-                    //todo start next message here
+                public void onTick(long millisUntilFinished) {
+                    trip.getmTextView().setText("next check: " + millisUntilFinished / 1000);
                 }
+
+                public void onFinish() {
+                    trip.getmTextView().setText("DONE!");
+                    distanceClient.getTravelTime(trip);
+                }
+            }.start();
     }
 
     @Override

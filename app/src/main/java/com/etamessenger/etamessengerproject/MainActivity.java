@@ -180,6 +180,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 //                //todo check trip for null fields and prmpt user for fix
 //                task.doInBackground(trip)
 //                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                TripTask tripTask = new TripTask();
+                tripTask.doInBackground(trip);
 
             }
         });
