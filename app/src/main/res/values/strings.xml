@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ETAMessenger Project</string>
+    <string name="app_name">ETA Messenger</string>
     <string name="EnterDestination">Enter destination:</string>
     <string name="Map">Map</string>
     <string name="title_activity_maps">Map</string>
@@ -13,4 +13,6 @@
     <string name="start">START</string>
     <string name="messageText">Message Text</string>
     <string name="contactName">Contact Name</string>
+    <string name="title_activity_trips">ETA Messenger</string>
+    <string name="action_Settings">Settings</string>
 </resources>

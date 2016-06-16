@@ -68,12 +68,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent intent = new Intent(MainActivity.this, TripsActivity.class);
+        startActivity(intent);
+
         /**
          * INITIALIZATION
          */
         GPSclient = LocationServiceClient.getInstance(this);
         mTextView = (TextView) findViewById(R.id.responseHolder);
         trip = new Trip(this, "driving"); //todo replace driving with preferneces
+        trip.setmTextView(mTextView); //todo replace with map thin
+        ArrayList<Contact> contacts = new ArrayList<>();
+        contacts.add(new Contact("emma", "2894046620"));
+        trip.setContacts(contacts);
         distanceClient = DistanceMatrixClient.getInstance(this);
         distanceClient.setCallBack(this);
 
@@ -155,19 +162,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
-        final EditText number = (EditText) findViewById(R.id.editText_number);
-        final EditText message = (EditText) findViewById(R.id.editText_message);
-        Button MsgBtn = (Button) findViewById(R.id.btn_sendMsg);
-        assert MsgBtn != null;
-        assert number != null;
-        assert message != null;
-        MsgBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage("+1" + number.getText().toString(), null, message.getText().toString(), null, null);
-            }
-        });
+//        final EditText number = (EditText) findViewById(R.id.editText_number);
+//        final EditText message = (EditText) findViewById(R.id.editText_message);
+//        Button MsgBtn = (Button) findViewById(R.id.btn_sendMsg);
+//        assert MsgBtn != null;
+//        assert number != null;
+//        assert message != null;
+//        MsgBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                SmsManager smsManager = SmsManager.getDefault();
+//                smsManager.sendTextMessage("+1" + number.getText().toString(), null, message.getText().toString(), null, null);
+//            }
+//        });
 
         /**
          * START BUTTON
@@ -257,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mTextView.setText("Time Results: " + timeInSeconds + " Mins: " + timeInSeconds/60);
 
         final List<Message> messages = generateMessages(timeInSeconds);
+        trip.setMessages((ArrayList<Message>) messages);
         msgAdaptor = new MessageItemAdaptor(messages, context);
         messageList.setAdapter(msgAdaptor);
 

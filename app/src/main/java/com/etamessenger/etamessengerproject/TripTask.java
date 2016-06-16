@@ -2,6 +2,7 @@ package com.etamessenger.etamessengerproject;
 
 import android.os.AsyncTask;
 import android.os.CountDownTimer;
+import android.telephony.SmsManager;
 import android.widget.TextView;
 
 import java.lang.reflect.Array;
@@ -28,6 +29,15 @@ public class TripTask extends AsyncTask<Trip, Void, Boolean> implements Distance
         messages = trip.getMessages();
         final TextView mTextField = trip.getmTextView();
 
+        System.out.println("SENDING MESSAGE!!!!");
+        System.out.println(trip.getMessages().toString());
+        SmsManager smsManager = SmsManager.getDefault();
+        for (Contact currContact : trip.getContacts()) {
+            smsManager.sendTextMessage("+1" + currContact.getNumber(), null, trip.getMessages().get(0).getMessageText(), null, null);
+        }
+        trip.getMessages().remove(0);
+        System.out.println(trip.getMessages().toString());
+
         distanceClient = DistanceMatrixClient.getInstance(trip.getContext());
         distanceClient.connect();
         distanceClient.setCallBack(this);
@@ -38,8 +48,18 @@ public class TripTask extends AsyncTask<Trip, Void, Boolean> implements Distance
     @Override
     public void onTraveltimeResult(int timeInSeconds) {
         int timeTillNextMessage = timeInSeconds - (messages.get(0).getMessageTime() * MINUTES_1);
+        if (timeTillNextMessage <= 0) {
+            System.out.println("SENDING MESSAGE!!!!");
+            System.out.println(trip.getMessages().toString());
+            SmsManager smsManager = SmsManager.getDefault();
+            for (Contact currContact : trip.getContacts()) {
+                smsManager.sendTextMessage("+1" + currContact.getNumber(), null, trip.getMessages().get(0).getMessageText(), null, null);
+            }
+            trip.getMessages().remove(0);
+            System.out.println(trip.getMessages().toString());
+        }
         int countDownTime = 0;
-            if (timeTillNextMessage > MINUTES_5) countDownTime = (timeTillNextMessage / 3) * 2;
+            if (timeTillNextMessage > MINUTES_5) countDownTime = (timeTillNextMessage / 3);
             else if (timeTillNextMessage > MINUTES_2) countDownTime = (MINUTES_1);
             else if (timeTillNextMessage > MINUTES_1) countDownTime = (30);
             else countDownTime = (10);
