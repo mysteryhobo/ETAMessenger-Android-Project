@@ -2,6 +2,7 @@ package com.etamessenger.etamessengerproject;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +45,7 @@ public class TripItemAdapter extends RecyclerView.Adapter<TripItemAdapter.TripVi
 
         public TripViewHolder(View v) {
             super(v);
-            tripText = (TextView) v.findViewById(R.id.textView_tripText);
+            tripText = (TextView) v.findViewById(R.id.tripText);
         }
     }
 }

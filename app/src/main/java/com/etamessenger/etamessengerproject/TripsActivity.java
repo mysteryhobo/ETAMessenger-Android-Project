@@ -16,15 +16,31 @@ import android.view.View;
 import java.util.ArrayList;
 
 public class TripsActivity extends AppCompatActivity {
-    private RecyclerView listView;
-    private RecyclerView.Adapter listViewAdapter;
-    private RecyclerView.LayoutManager listViewManager;
+    private RecyclerView rv;
+    private RecyclerView.Adapter rvAdapter;
+    private LinearLayoutManager rvManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trips);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        rv = (RecyclerView) findViewById(R.id.tripList);
+        rv.setHasFixedSize(true);
+        rvManager = new LinearLayoutManager(getApplication());
+        rvManager.setOrientation(LinearLayoutManager.VERTICAL);
+        rv.setLayoutManager(rvManager);
+
+//        TripDBHelper dbHelper = TripDBHelper.getInstance(this);
+//        ArrayList<Trip> trips = dbHelper.getAllTrips();
+//        rvAdapter = new TripItemAdapter(trips, getApplication());
+//        rv.setAdapter(rvAdapter);
+
+//        System.out.println("Number of trips: " + trips.size());
+//        for (Trip currTrip : trips) {
+//            System.out.println(currTrip.toString());
+//        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -40,23 +56,7 @@ public class TripsActivity extends AppCompatActivity {
             }
         });
 
-        listView = (RecyclerView) findViewById(R.id.RV_tripsList);
-        listView.setHasFixedSize(true);
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        listView.setLayoutManager(llm);
-
-        TripDBHelper dbHelper = TripDBHelper.getInstance(this);
-        ArrayList<Trip> trips = dbHelper.getAllTrips();
-        System.out.println("Number of trips: " + trips.size());
-        for (Trip currTrip : trips) {
-            System.out.println(currTrip.toString());
-        }
-
-
-        TripItemAdapter tripListAdapter = new TripItemAdapter(trips, this);
-        listView.setAdapter(tripListAdapter);
-
+        System.out.println("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG0");
     }
 
     @Override
@@ -66,4 +66,12 @@ public class TripsActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        TripDBHelper dbHelper = TripDBHelper.getInstance(this);
+        ArrayList<Trip> trips = dbHelper.getAllTrips();
+        rvAdapter = new TripItemAdapter(trips, getApplication());
+        rv.setAdapter(rvAdapter);
+    }
 }
