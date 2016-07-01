@@ -3,9 +3,10 @@ package com.etamessenger.etamessengerproject;
 /**
  * Created by peter on 05/06/16.
  */
-public class Contact {
+public class Contact implements DBObject{
     private String name;
     private String number;
+    private long id;
 
     public Contact(String name, String number) {
         this.name = name;
@@ -26,5 +27,15 @@ public class Contact {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(long id) {
+        this.id = id;
     }
 }

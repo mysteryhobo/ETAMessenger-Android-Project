@@ -3,13 +3,24 @@ package com.etamessenger.etamessengerproject;
 /**
  * Created by peter on 03/06/16.
  */
-public class Message {
+public class Message implements DBObject {
     private String messageText;
     private int messageTime;
+    private long id;
 
     public Message(String messageText, int messageTime) {
         this.messageText = messageText;
         this.messageTime = messageTime;
+    }
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getMessageText() {

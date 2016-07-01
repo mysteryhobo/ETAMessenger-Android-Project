@@ -105,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 // TODO: Get info about the selected place.
                 enableTravelModeButtons(false);
                 spinner.setVisibility(View.VISIBLE);
-                trip.setDestination(place);
+                trip.setLatCoord(Double.toString(place.getLatLng().latitude));
+                trip.setLongCoord(Double.toString(place.getLatLng().longitude));
                 distanceClient.getTravelTime(trip);
 //                Log.i(TAG, "Place: " + place.getName() + ", latLong: " + destination.toString());
 //                Log.i(TAG, "response");
@@ -139,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
          * MESSAGE LIST VIEW
          */
         messageList = (RecyclerView) findViewById(R.id.RV_messageList);
-        assert messageList != null;
         messageList.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -363,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 spinner.setVisibility(View.VISIBLE);
                 trip.setTravelmode(newTravelMode);
                 enableTravelModeButtons(false);
-                if (trip.getDestination() != null) distanceClient.getTravelTime(trip);
+                if (trip.getLatCoord() != null && trip.getLongCoord() != null) distanceClient.getTravelTime(trip);
             }
         }
     }

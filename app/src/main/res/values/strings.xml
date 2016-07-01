@@ -15,4 +15,5 @@
     <string name="contactName">Contact Name</string>
     <string name="title_activity_trips">ETA Messenger</string>
     <string name="action_Settings">Settings</string>
+    <string name="tripText">Trip name here</string>
 </resources>

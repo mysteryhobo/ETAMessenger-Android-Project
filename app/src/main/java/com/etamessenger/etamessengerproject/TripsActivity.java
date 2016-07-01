@@ -5,13 +5,20 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 
+import java.util.ArrayList;
+
 public class TripsActivity extends AppCompatActivity {
+    private RecyclerView listView;
+    private RecyclerView.Adapter listViewAdapter;
+    private RecyclerView.LayoutManager listViewManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +39,24 @@ public class TripsActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        listView = (RecyclerView) findViewById(R.id.RV_tripsList);
+        listView.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        listView.setLayoutManager(llm);
+
+        TripDBHelper dbHelper = TripDBHelper.getInstance(this);
+        ArrayList<Trip> trips = dbHelper.getAllTrips();
+        System.out.println("Number of trips: " + trips.size());
+        for (Trip currTrip : trips) {
+            System.out.println(currTrip.toString());
+        }
+
+
+        TripItemAdapter tripListAdapter = new TripItemAdapter(trips, this);
+        listView.setAdapter(tripListAdapter);
+
     }
 
     @Override

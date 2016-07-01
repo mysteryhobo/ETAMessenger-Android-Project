@@ -11,8 +11,11 @@ import java.util.ArrayList;
 /**
  * Created by peter on 08/06/16.
  */
-public class Trip {
-    Place destination;
+public class Trip implements DBObject{
+    private long id;
+    String name;
+    String latCoord;
+    String longCoord;
     LatLng startLocation;
     ArrayList<Message> messages = new ArrayList<>();
     ArrayList<Contact> contacts = new ArrayList<>();
@@ -21,9 +24,41 @@ public class Trip {
     String travelmode;
     int totalTravelTime;
 
+    public String toString() {
+        return name + " "
+                + latCoord + " "
+                + longCoord + " "
+                + messages.toString() + " "
+                + contacts.toString();
+    }
+
     public Trip(Context context, String travelmode) {
         this.context = context;
         this.travelmode = travelmode;
+    }
+
+    public Trip(String name, String latCoord, String longCoord, ArrayList<Message> messages, ArrayList<Contact> contacts) {
+        this.name = name;
+        this.latCoord = latCoord;
+        this.longCoord = longCoord;
+        this.messages = messages;
+        this.contacts = contacts;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public LatLng getStartLocation() {
@@ -74,14 +109,6 @@ public class Trip {
         contacts.add(contact);
     }
 
-    public Place getDestination() {
-        return destination;
-    }
-
-    public void setDestination(Place destination) {
-        this.destination = destination;
-    }
-
     public ArrayList<Message> getMessages() {
         return messages;
     }
@@ -97,4 +124,22 @@ public class Trip {
     public void setContacts(ArrayList<Contact> contacts) {
         this.contacts = contacts;
     }
+
+    public String getLatCoord() {
+        return latCoord;
+    }
+
+    public void setLatCoord(String latCoord) {
+        this.latCoord = latCoord;
+    }
+
+    public String getLongCoord() {
+        return longCoord;
+    }
+
+    public void setLongCoord(String longCoord) {
+        this.longCoord = longCoord;
+    }
+
+
 }

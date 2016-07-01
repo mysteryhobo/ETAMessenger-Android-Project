@@ -128,15 +128,15 @@ public class DistanceMatrixClient {
         trip.setStartLocation(this.getCurrentLocation());
         //// TODO: 31/05/16 get travel settings and use them here (possibly pass them as parameters)
         if (trip.getStartLocation() == null) System.out.println("11111");
-        if (trip.getDestination() == null) System.out.println("2222222");
+        if (trip.getLatCoord() == null || trip.getLongCoord() == null) System.out.println("2222222");
         if (trip.getContext() == null) System.out.println("3333333");
         if (trip.getTravelmode() == null) System.out.println("4444444");
         String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="
                 + trip.getStartLocation().latitude + ","
                 + trip.getStartLocation().longitude
                 + "&destinations="
-                + trip.getDestination().getLatLng().latitude + ","
-                + trip.getDestination().getLatLng().longitude
+                + trip.getLatCoord() + ","
+                + trip.getLongCoord()
                 + "&mode=" + trip.getTravelmode()
                 + "&key=";
 
@@ -150,7 +150,7 @@ public class DistanceMatrixClient {
                             //yo dawg so I heard you like JSONs
                             Log.i(TAG, "onResponse: " + response.toString());
                             int totalResult = (int) ((JSONObject) ((JSONObject) ((JSONObject) response.getJSONArray("rows").getJSONObject(0)).getJSONArray("elements").get(0)).get("duration")).get("value");
-                            logResponse(trip.getStartLocation(), trip.getDestination().getLatLng(), response, totalResult);
+                            logResponse(trip.getStartLocation(), trip.getLatCoord(), trip.getLongCoord(), response, totalResult);
                             if (listener != null) listener.onTraveltimeResult(totalResult);
                         } catch (Exception e) {
                             // TODO: 31/05/16 handle error
@@ -174,10 +174,10 @@ public class DistanceMatrixClient {
         queue.add(jsObjRequest);
     }
 
-    private void logResponse(LatLng currentPosition, LatLng destination, JSONObject response, int timeInSeconds) {
+    private void logResponse(LatLng currentPosition, String latdestination, String longDestination, JSONObject response, int timeInSeconds) {
         Log.i(TAG, "Distance Matrix Response: \n" +
                 "Current Location: " + currentPosition.toString() + "\n" +
-                "Destination Location: " + destination.toString() + "\n" +
+                "Destination Location: " + latdestination + ", " + longDestination + "\n" +
                 "Response: " + response.toString() + "\n" +
                 "Time: " + timeInSeconds);
     }
