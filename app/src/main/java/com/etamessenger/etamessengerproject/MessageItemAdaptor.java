@@ -36,7 +36,6 @@ public class MessageItemAdaptor extends RecyclerView.Adapter<MessageItemAdaptor.
         holder.messageText.setText(currMessage.getMessageText());
         TextDrawable drawable = TextDrawable.builder()
                 .buildRect(Integer.valueOf(currMessage.getMessageTime()).toString(), context.getResources().getColor(R.color.colorPrimary));
-
         holder.image.setImageDrawable(drawable);
     }
 

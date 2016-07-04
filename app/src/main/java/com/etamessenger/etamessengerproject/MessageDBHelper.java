@@ -61,9 +61,12 @@ public class MessageDBHelper extends SQLiteOpenHelper {
 
     private long[] parseIDString(String idString) {
         if (idString == null || idString.length() == 0) return new long[0];
-        String[] listofIDStrings = idString.split("|");
+        Log.i("messageDB", "idString:" + idString);
+        String[] listofIDStrings = idString.split("_");
+        Log.i("messageDB", "arraylength:" + listofIDStrings.length);
         long[] listofIds = new long[listofIDStrings.length];
         for (int i = 0; i < listofIds.length; i ++) {
+            Log.i("messageDB", "String: " + i + " is: |" + listofIDStrings[i] + "|");
             listofIds[i] = Long.parseLong(listofIDStrings[i], 10);
         }
         return listofIds;
@@ -102,8 +105,8 @@ public class MessageDBHelper extends SQLiteOpenHelper {
             cursor.moveToFirst();
 
             message = new Message(
-                    cursor.getString(1),
-                    cursor.getInt(2)
+                    cursor.getString(0),
+                    cursor.getInt(1)
             );
             message.setId(id);
         }

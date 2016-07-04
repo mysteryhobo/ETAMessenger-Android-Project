@@ -59,9 +59,12 @@ public class ContactDBHelper extends SQLiteOpenHelper{
 
     private long[] parseIDString(String idString) {
         if (idString == null || idString.length() == 0) return new long[0];
-        String[] listofIDStrings = idString.split("|");
+        Log.i("contactDb", "idString:" + idString);
+        String[] listofIDStrings = idString.split("_");
+        Log.i("contactDb", "arraylength:" + listofIDStrings.length);
         long[] listofIds = new long[listofIDStrings.length];
         for (int i = 0; i < listofIds.length; i ++) {
+            Log.i("contactDb", "String: " + i + " is: |" + listofIDStrings[i] + "|");
             listofIds[i] = Long.parseLong(listofIDStrings[i], 10);
         }
         return listofIds;
@@ -100,8 +103,8 @@ public class ContactDBHelper extends SQLiteOpenHelper{
             cursor.moveToFirst();
 
             contact = new Contact(
-                    cursor.getString(1),
-                    cursor.getString(2)
+                    cursor.getString(0),
+                    cursor.getString(1)
             );
             contact.setId(id);
         }

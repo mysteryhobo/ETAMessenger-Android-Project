@@ -16,4 +16,7 @@
     <string name="title_activity_trips">ETA Messenger</string>
     <string name="action_Settings">Settings</string>
     <string name="tripText">Trip name here</string>
+    <string name="num_of_msgs">%d Messages</string>
+    <string name="TravelModeImageDescription">image depicting the mode of travel</string>
+    <string name="contact">The profile picture corresponding to the contact</string>
 </resources>

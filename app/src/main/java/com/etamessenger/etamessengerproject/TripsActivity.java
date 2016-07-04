@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -26,11 +27,28 @@ public class TripsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_trips);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
+
+//        DB RESET CODE (FOR TESTING ONLY)
+        TripDBHelper db = TripDBHelper.getInstance(getApplicationContext());
+        db.deleteAllTrips();
+        MessageDBHelper msgDB = MessageDBHelper.getInstance(getApplicationContext());
+        msgDB.deleteAllMessages();
+        ContactDBHelper contactsDB = ContactDBHelper.getInstance(getApplicationContext());
+        contactsDB.deleteAllContacts();
+
+        Log.i("BAM", "onCreate: 4");
+//
         rv = (RecyclerView) findViewById(R.id.tripList);
         rv.setHasFixedSize(true);
         rvManager = new LinearLayoutManager(getApplication());
         rvManager.setOrientation(LinearLayoutManager.VERTICAL);
         rv.setLayoutManager(rvManager);
+
+        TripDBHelper dbHelper = TripDBHelper.getInstance(this);
+        ArrayList<Trip> trips = dbHelper.getAllTrips();
+        rvAdapter = new TripItemAdapter(trips, getApplication());
+        rv.setAdapter(rvAdapter);
+
 
 //        TripDBHelper dbHelper = TripDBHelper.getInstance(this);
 //        ArrayList<Trip> trips = dbHelper.getAllTrips();
@@ -55,7 +73,7 @@ public class TripsActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
+        ((TripItemAdapter) rv.getAdapter()).fixSize();
         System.out.println("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG0");
     }
 
@@ -66,12 +84,16 @@ public class TripsActivity extends AppCompatActivity {
         return true;
     }
 
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        System.out.println("AHHHHHHHHHHHHHHHHHHHHHHH");
+//        ((TripItemAdapter) rv.getAdapter()).fixSize();
+//    }
+
     @Override
-    protected void onStart() {
-        super.onStart();
-        TripDBHelper dbHelper = TripDBHelper.getInstance(this);
-        ArrayList<Trip> trips = dbHelper.getAllTrips();
-        rvAdapter = new TripItemAdapter(trips, getApplication());
-        rv.setAdapter(rvAdapter);
+    protected void onResume() {
+        super.onResume();
+        ((TripItemAdapter) rv.getAdapter()).fixSize();
     }
 }

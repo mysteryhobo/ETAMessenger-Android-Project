@@ -37,12 +37,13 @@ public class Trip implements DBObject{
         this.travelmode = travelmode;
     }
 
-    public Trip(String name, String latCoord, String longCoord, ArrayList<Message> messages, ArrayList<Contact> contacts) {
+    public Trip(String name, String latCoord, String longCoord, ArrayList<Message> messages, ArrayList<Contact> contacts, String travelmode) {
         this.name = name;
         this.latCoord = latCoord;
         this.longCoord = longCoord;
         this.messages = messages;
         this.contacts = contacts;
+        this.travelmode = travelmode;
     }
 
     public long getId() {

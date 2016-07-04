@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class TripDBHelper extends SQLiteOpenHelper {
 
     private static TripDBHelper ourInstance;
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_FILENAME = "trips.db";
     public static final String TABLE_NAME = "Trips";
     Context context;
@@ -40,7 +40,8 @@ public class TripDBHelper extends SQLiteOpenHelper {
             "  latCoord text not null, " +
             "  longCoord text not null, " +
             "  msgIDs text not null, " +
-            "  contactIDs text not null " +
+            "  contactIDs text not null, " +
+            " travelMode text not null " +
             ")";
     public static final String DROP_STATEMENT = "DROP TABLE " + TABLE_NAME;
 
@@ -63,7 +64,7 @@ public class TripDBHelper extends SQLiteOpenHelper {
     private String generateIDString(ArrayList<? extends DBObject> list) {
         StringBuilder idlist = new StringBuilder();
         for (DBObject currElement : list){
-            idlist.append(currElement.getId()).append("|");
+            idlist.append(currElement.getId()).append("_");
         }
         return idlist.toString();
     }
@@ -81,6 +82,7 @@ public class TripDBHelper extends SQLiteOpenHelper {
         values.put("longCoord", trip.getLongCoord());
         values.put("msgIDs", generateIDString(trip.getMessages()));
         values.put("contactIDs", generateIDString(trip.getContacts()));
+        values.put("travelMode", trip.getTravelmode());
         long id = database.insert(TABLE_NAME, null, values);
 
         // assign the Id of the new database row as the Id of the object
@@ -100,7 +102,8 @@ public class TripDBHelper extends SQLiteOpenHelper {
                 "latCoord",
                 "longCoord",
                 "msgIDs",
-                "contactIDs"
+                "contactIDs",
+                "tavelMode"
         };
         Cursor cursor = database.query(TABLE_NAME, columns, "_id = ?", new String[]{"" + id}, "", "", "");
         if (cursor.getCount() >= 1) {
@@ -113,7 +116,8 @@ public class TripDBHelper extends SQLiteOpenHelper {
                     cursor.getString(2),
                     cursor.getString(3),
                     msgDBHelper.getMessages(cursor.getString(4)),
-                    contactDBHelper.getContacts(cursor.getString(5))
+                    contactDBHelper.getContacts(cursor.getString(5)),
+                    cursor.getString(6)
             );
             trip.setId(id);
         }
@@ -134,7 +138,8 @@ public class TripDBHelper extends SQLiteOpenHelper {
                 "latCoord",
                 "longCoord",
                 "msgIDs",
-                "contactIDs"
+                "contactIDs",
+                "travelMode"
         };
         try {
             Cursor cursor = database.query(TABLE_NAME, columns, "", new String[]{}, "", "", "");
@@ -150,7 +155,8 @@ public class TripDBHelper extends SQLiteOpenHelper {
                             cursor.getString(2),
                             cursor.getString(3),
                             msgDBHelper.getMessages(cursor.getString(4)),
-                            contactDBHelper.getContacts(cursor.getString(5))
+                            contactDBHelper.getContacts(cursor.getString(5)),
+                            cursor.getString(6)
                     );
                     trip.setId(id);
 
@@ -163,13 +169,24 @@ public class TripDBHelper extends SQLiteOpenHelper {
             }
         } catch (SQLiteException databaseEmpty) {
             databaseEmpty.printStackTrace();
-            Log.i("generating fake trip", "getAllTrips: ");
-            this.createTrip(new Trip("School", "43.944677", "-78.89645", new ArrayList<Message>(), new ArrayList<Contact>()));
+
             return getAllTrips();
         }
         Log.i("DatabaseAccess", "getAllTrips():  num: " + trips.size());
         if (trips.size() == 0) {
-            this.createTrip(new Trip("School", "43.944677", "-78.89645", new ArrayList<Message>(), new ArrayList<Contact>()));
+            Log.i("generating fake trip", "getAllTrips: ");
+            MessageDBHelper msgDB = MessageDBHelper.getInstance(context);
+            msgDB.createMessage(new Message("im going to be there in 5", 300));
+            msgDB.createMessage(new Message("i will be there in 20", 1200));
+
+            ContactDBHelper contactDB = ContactDBHelper.getInstance(context);
+            contactDB.createContact(new Contact("emma", "905 728 6620"));
+            contactDB.createContact(new Contact("peterlittle", "289 404 6640"));
+            contactDB.createContact(new Contact("sammy", "905 555 5555"));
+            contactDB.createContact(new Contact("ricky", "905 555 5555"));
+            contactDB.createContact(new Contact("bobby", "905 555 5555"));
+            contactDB.createContact(new Contact("freddy", "905 555 5555"));
+            this.createTrip(new Trip("oshawa", "43.944677", "-78.89645", msgDB.getAllMessages(), contactDB.getAllContacts(), "walking"));
             return getAllTrips();
         }
         return trips;
@@ -186,6 +203,7 @@ public class TripDBHelper extends SQLiteOpenHelper {
         values.put("longCoord", trip.getLongCoord());
         values.put("msgIDs", generateIDString(trip.getMessages()));
         values.put("contactIDs", generateIDString(trip.getContacts()));
+        values.put("travelMode", trip.getTravelmode());
 
         int numRowsAffected = database.update(TABLE_NAME, values, "_id = ?", new String[] { "" + trip.getId() });
 
