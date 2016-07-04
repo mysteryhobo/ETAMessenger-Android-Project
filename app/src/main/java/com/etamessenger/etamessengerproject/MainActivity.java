@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(MainActivity.this, TripsActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(MainActivity.this, TripsActivity.class);
+//        startActivity(intent);
 
         /**
          * INITIALIZATION
@@ -187,8 +187,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 //                //todo check trip for null fields and prmpt user for fix
 //                task.doInBackground(trip)
 //                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-                TripTask tripTask = new TripTask();
-                tripTask.doInBackground(trip);
+//                TripTask tripTask = new TripTask();
+//                tripTask.doInBackground(trip);
+            Intent intent = new Intent(MainActivity.this, TripsActivity.class);
+            startActivity(intent);
 
             }
         });

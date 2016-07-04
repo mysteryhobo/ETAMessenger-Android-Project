@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.flexbox.FlexboxLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +44,7 @@ public class TripItemAdapter extends RecyclerView.Adapter<TripItemAdapter.TripVi
         for (Contact currContact : currTrip.getContacts()) {
             holder.contactsHolder.addView(new ContactView(context, currContact.getName().substring(0,1).toUpperCase() + currContact.getName().substring(1)));
         }
-//        holder.sizeText.setText(holder.contactsHolder.getMeasuredWidth() + "");
+        holder.sizeText.setText(holder.contactsHolder.getMeasuredWidth() + "");
 //        holder.msgsText.setText(context.getString(R.string.num_of_msgs, currTrip.getMessages().size()));
     }
 
@@ -69,7 +71,7 @@ public class TripItemAdapter extends RecyclerView.Adapter<TripItemAdapter.TripVi
         protected TextView tripText;
         protected ImageView travelModeIndicator;
         protected TextView travelTime;
-        protected LinearLayout contactsHolder;
+        protected FlexboxLayout contactsHolder;
         protected TextView msgsText;
         protected TextView sizeText;
 
@@ -78,7 +80,7 @@ public class TripItemAdapter extends RecyclerView.Adapter<TripItemAdapter.TripVi
             tripText = (TextView) v.findViewById(R.id.tripText);
             travelModeIndicator = (ImageView) v.findViewById(R.id.image_view_travelMode);
             travelTime = (TextView) v.findViewById(R.id.textView_travelTime);
-            contactsHolder = (LinearLayout) v.findViewById(R.id.linearLayout_contactsViewHolder);
+            contactsHolder = (FlexboxLayout) v.findViewById(R.id.linearLayout_contactsViewHolder);
 //            msgsText = (TextView) v.findViewById(R.id.textView_numOfMessages);
             sizeText = (TextView) v.findViewById(R.id.textView_size);
         }

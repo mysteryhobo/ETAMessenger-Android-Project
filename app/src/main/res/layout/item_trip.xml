@@ -33,16 +33,33 @@
             android:layout_alignParentTop="true"
             android:layout_toEndOf="@+id/tripText"
             android:layout_marginStart="4dp"
-            android:layout_marginTop="7dp"/>
+            android:layout_marginTop="7dp"
+            android:layout_above="@+id/linearLayout_contactsViewHolder" />
 
-        <LinearLayout
+        <!--<LinearLayout-->
+            <!--android:id="@+id/linearLayout_contactsViewHolder"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:layout_below="@+id/tripText"-->
+            <!--android:layout_toStartOf="@+id/image_view_travelMode">-->
+        <!--</LinearLayout>-->
+
+        <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/linearLayout_contactsViewHolder"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@+id/tripText"
-            android:layout_alignParentStart="true">
-        </LinearLayout>
+            android:layout_height="match_parent"
+            app:flexWrap="nowrap"
+            app:alignItems="flex_start"
+            app:alignContent="flex_start"
+
+            android:layout_toStartOf="@+id/image_view_travelMode"
+        android:layout_below="@+id/tripText">
+        </com.google.android.flexbox.FlexboxLayout>
+
 
         <ImageView
             android:id="@+id/image_view_travelMode"
@@ -57,7 +74,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/linearLayout_contactsViewHolder"
-            android:text="size here"/>
+            android:text="size here"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 

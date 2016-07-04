@@ -84,16 +84,16 @@ public class TripsActivity extends AppCompatActivity {
         return true;
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        System.out.println("AHHHHHHHHHHHHHHHHHHHHHHH");
-//        ((TripItemAdapter) rv.getAdapter()).fixSize();
-//    }
-
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
+        System.out.println("AHHHHHHHHHHHHHHHHHHHHHHH");
         ((TripItemAdapter) rv.getAdapter()).fixSize();
     }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        ((TripItemAdapter) rv.getAdapter()).fixSize();
+//    }
 }
