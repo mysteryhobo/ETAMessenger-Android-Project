@@ -26,6 +26,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
@@ -42,7 +43,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, DistanceMatrixClient.OnResultListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, DistanceMatrixClient.OnResultListener{
     private static final String TAG = MainActivity.class.getSimpleName();
     static final int REQUEST_CONTACT = 1;
     TextView mTextView;
@@ -263,11 +264,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onTraveltimeResult(int timeInSeconds) {
         Log.i(TAG, "onTraveltimeResult: Received Result:" + timeInSeconds);
+        trip.setTotalTravelTime(timeInSeconds);
         mTextView.setText("Time Results: " + timeInSeconds + " Mins: " + timeInSeconds/60);
 
         final List<Message> messages = generateMessages(timeInSeconds);
         trip.setMessages((ArrayList<Message>) messages);
-        msgAdaptor = new MessageItemAdaptor(messages, context);
+        msgAdaptor = new MessageItemAdaptor(messages, context, this, timeInSeconds);
         messageList.setAdapter(msgAdaptor);
 
         SwipeableRecyclerViewTouchListener swipeTouchListener =
@@ -347,7 +349,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         public void onClick(View v) {
             String newTravelMode = null;
             switch (v.getId()) {
-                //// TODO: 01/06/16 add button highlighting
                 case R.id.btn_driving:
                     newTravelMode = "driving";
                     break;

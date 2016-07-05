@@ -123,6 +123,57 @@ public class DistanceMatrixClient {
 //        queue.add(jsObjRequest);
 //    }
 
+    public void getTravelTime(final Trip trip, final OnResultListener lsnr) { //todo merge getTimeTravelMessages
+        RequestQueue queue = Volley.newRequestQueue(trip.getContext());
+        trip.setStartLocation(this.getCurrentLocation());
+        //// TODO: 31/05/16 get travel settings and use them here (possibly pass them as parameters)
+        if (trip.getStartLocation() == null) System.out.println("11111");
+        if (trip.getLatCoord() == null || trip.getLongCoord() == null) System.out.println("2222222");
+        if (trip.getContext() == null) System.out.println("3333333");
+        if (trip.getTravelmode() == null) System.out.println("4444444");
+        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="
+                + trip.getStartLocation().latitude + ","
+                + trip.getStartLocation().longitude
+                + "&destinations="
+                + trip.getLatCoord() + ","
+                + trip.getLongCoord()
+                + "&mode=" + trip.getTravelmode()
+                + "&key=";
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            //yo dawg so I heard you like JSONs
+                            Log.i(TAG, "onResponse: " + response.toString());
+                            int totalResult = (int) ((JSONObject) ((JSONObject) ((JSONObject) response.getJSONArray("rows").getJSONObject(0)).getJSONArray("elements").get(0)).get("duration")).get("value");
+                            logResponse(trip.getStartLocation(), trip.getLatCoord(), trip.getLongCoord(), response, totalResult);
+                            if (lsnr != null) lsnr.onTraveltimeResult(totalResult);
+                        } catch (Exception e) {
+                            // TODO: 31/05/16 handle error
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //// TODO: 31/05/16 handle error
+                        error.printStackTrace();
+                    }
+                });
+
+        jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(
+                20000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        queue.add(jsObjRequest);
+    }
+
     public void getTravelTime(final Trip trip) {
         RequestQueue queue = Volley.newRequestQueue(trip.getContext());
         trip.setStartLocation(this.getCurrentLocation());

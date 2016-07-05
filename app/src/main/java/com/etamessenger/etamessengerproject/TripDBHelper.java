@@ -184,8 +184,8 @@ public class TripDBHelper extends SQLiteOpenHelper {
             contactDB.createContact(new Contact("peterlittle", "289 404 6640"));
             contactDB.createContact(new Contact("sammy", "905 555 5555"));
             contactDB.createContact(new Contact("ricky", "905 555 5555"));
-//            contactDB.createContact(new Contact("bobby", "905 555 5555"));
-//            contactDB.createContact(new Contact("freddy", "905 555 5555"));
+            contactDB.createContact(new Contact("bobby", "905 555 5555"));
+            contactDB.createContact(new Contact("freddy", "905 555 5555"));
             this.createTrip(new Trip("oshawa", "43.944677", "-78.89645", msgDB.getAllMessages(), contactDB.getAllContacts(), "walking"));
             return getAllTrips();
         }

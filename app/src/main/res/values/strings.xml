@@ -19,4 +19,10 @@
     <string name="num_of_msgs">%d Messages</string>
     <string name="TravelModeImageDescription">image depicting the mode of travel</string>
     <string name="contact">The profile picture corresponding to the contact</string>
+    <string name="hour_and_min_time" formatted="false">%d Hours %d Mins</string>
+    <string name="hour_time">1 hour</string>
+    <string name="hours_time" formatted="false">%d hours</string>
+    <string name="min_time" formatted="false">%d Mins</string>
+    <string name="arival">On Arrival</string>
+    <string name="Departure">On Departure</string>
 </resources>
