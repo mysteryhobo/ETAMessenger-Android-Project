@@ -1,29 +1,17 @@
 package com.etamessenger.etamessengerproject;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.provider.ContactsContract;
-import android.support.v4.content.ContextCompat;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.NumberPicker;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 
@@ -34,7 +22,7 @@ import java.util.List;
 /**
  * Created by peter on 03/06/16.
  */
-public class MessageItemAdaptor extends RecyclerView.Adapter<MessageItemAdaptor.MessageViewHolder> {
+public class MessageItemAdaptor extends RecyclerView.Adapter<MessageItemAdaptor.MessageViewHolder> implements MessageTimePicker.TimePickerListener {
 
     private List<Message> messageList;
     private Context context;
@@ -78,34 +66,53 @@ public class MessageItemAdaptor extends RecyclerView.Adapter<MessageItemAdaptor.
 
             @Override
             public void onClick(final View v) {
-                Log.i("BALLLz", "onClick: AHHHHH I GOT CLICKED");
-                SeekBar seekBar = (SeekBar) activity.findViewById(R.id.seekBar_messageTime);
-                seekBar.setMax(totalTravelTime / 60);
-                seekBar.setProgress(currMessage.getMessageTime());
-                seekBar.setVisibility(View.VISIBLE);
+                new MessageTimePicker().show(activity.getFragmentManager(), "MessageTime");
 
-                seekBar.setProgressDrawable(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.seekbar_progress));
 
-//                seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.ic_bike_primary));
-//                seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.layout.item_contact));
 
-                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    int currProgress;
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        ((TextView) v).setText(Integer.toString(progress));
-                    }
 
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
 
-                    }
 
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
 
-                    }
-                });
+//                Log.i("BALLLz", "onClick: AHHHHH I GOT CLICKED");
+//                SeekBar seekBar = (SeekBar) activity.findViewById(R.id.seekBar_messageTime);
+//                seekBar.setMax(totalTravelTime / 60);
+//                seekBar.setProgress(currMessage.getMessageTime());
+//                seekBar.setVisibility(View.VISIBLE);
+//
+//                seekBar.setProgressDrawable(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.seekbar_progress));
+//                seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.big_thumb));
+//
+////                seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.ic_bike_primary));
+////                seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.layout.item_contact));
+//
+//                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//                    int currProgress;
+//                    @Override
+//                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                        ((TextView) v).setText(Integer.toString(progress));
+//                        if (progress > 30) seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.big_thumb));
+//                        if (progress == 0) seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.thumb_arrival));
+//                        else if (progress == seekBar.getMax()) seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.thumb_departure));
+//                        else {
+//                            if ((progress / 60) == 1) seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.thumb_minutes));
+//                            else if ((progress / 60) > 1) {
+//                                if (progress % 60 == 0) seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.thumb_minutes));
+//                                else seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.thumb_hrs_and_mins));
+//                            } else seekBar.setThumb(ContextCompat.getDrawable(context.getApplicationContext(),R.drawable.thumb_hrs_and_mins));
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onStopTrackingTouch(SeekBar seekBar) {
+//
+//                    }
+//                });
 
                 Log.i("Message adapter", "onClick: " + totalTravelTime + " || " + currMessage.getMessageTime());
             }
@@ -125,6 +132,11 @@ public class MessageItemAdaptor extends RecyclerView.Adapter<MessageItemAdaptor.
     @Override
     public int getItemCount() {
         return messageList.size();
+    }
+
+    @Override
+    public void onTimeSelected(DialogFragment dialogFragment) {
+        Log.i("BOOOOOOOOOOOOOOOOOM", "onTimeSelected: ");
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {

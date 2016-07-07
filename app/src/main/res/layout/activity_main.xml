@@ -110,16 +110,20 @@
             <!--android:foregroundTint="@color/colorPrimary"-->
             <!--android:rotation="180"/>-->
 
-        <com.etamessenger.etamessengerproject.CustomSeekBar
-            android:id="@+id/seekBar_messageTime"
-            android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:elevation="5dp"
-            android:visibility="gone"
-            android:progress="0"
-            android:splitTrack="false"
-            android:thumb="@drawable/shape_seek_bar_text_thumb"
-            android:thumbOffset="4dp"/>
+        <!--<com.etamessenger.etamessengerproject.CustomSeekBar-->
+            <!--android:id="@+id/seekBar_messageTime"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="15dp"-->
+            <!--android:elevation="5dp"-->
+            <!--android:visibility="gone"-->
+            <!--android:progress="0"-->
+            <!--android:splitTrack="false"-->
+            <!--android:maxHeight="6dp"-->
+            <!--android:minHeight="6dp"-->
+            <!--android:paddingStart="35dp"-->
+            <!--android:paddingEnd="35dp"-->
+            <!--android:thumb="@drawable/shape_seek_bar_text_thumb"-->
+            <!--android:thumbOffset="4dp"/>-->
 
         <LinearLayout
             android:id="@+id/LL_contacts_holder"

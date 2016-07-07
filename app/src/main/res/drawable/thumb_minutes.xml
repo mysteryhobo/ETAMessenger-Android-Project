@@ -4,6 +4,6 @@
     <corners android:radius="2dp" />
     <solid android:color="@color/main"/>
     <size
-        android:width="20dp"
+        android:width="30dp"
         android:height="@dimen/thumb_size"/>
 </shape>

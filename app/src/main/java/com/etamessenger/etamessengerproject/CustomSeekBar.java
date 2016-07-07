@@ -16,6 +16,7 @@ import android.widget.SeekBar;
  * Created by peter on 05/07/16.
  */
 public class CustomSeekBar extends SeekBar {
+    private Context context;
 
     private int mThumbSize;
     private TextPaint mTextPaint;
@@ -30,24 +31,35 @@ public class CustomSeekBar extends SeekBar {
 
     public CustomSeekBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        this.context = context;
+
 
         mThumbSize = getResources().getDimensionPixelSize(R.dimen.thumb_size);
 
         mTextPaint = new TextPaint();
         mTextPaint.setColor(ContextCompat.getColor(context, R.color.whitemain));
         mTextPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.thumb_text_size));
-        mTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        mTextPaint.setTypeface(Typeface.DEFAULT);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
     protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        int progress = getProgress();
+        String progressText;
+        if (progress == 0) progressText = context.getResources().getString(R.string.arival);
+        else if (progress == getMax()) progressText = context.getResources().getString(R.string.departure);
+        else {
+            if ((progress / 60) == 1) progressText = context.getResources().getString(R.string.hour_time);
+            else if ((progress / 60) > 1) {
+                if (progress % 60 == 0) progressText = String.format(context.getResources().getString(R.string.hours_time), progress / 60);
+                else progressText = String.format(context.getResources().getString(R.string.hrs_and_min_time), progress / 60, progress % 60); //todo add option for 1 hour and x mins
+            } else progressText = String.format(context.getResources().getString(R.string.min_time), progress % 60);
+        }
 
-        String progressText = String.valueOf(getProgress());
         Rect bounds = new Rect();
         mTextPaint.getTextBounds(progressText, 0, progressText.length(), bounds);
-
         int leftPadding = getPaddingLeft() - getThumbOffset();
         int rightPadding = getPaddingRight() - getThumbOffset();
         int width = getWidth() - leftPadding - rightPadding;

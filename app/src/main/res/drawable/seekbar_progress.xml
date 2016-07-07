@@ -10,6 +10,10 @@
                 android:endColor="#ff747674"
                 android:angle="270"
                 />
+            <size
+                android:height="6dp"
+                android:width="6dp"
+                />
         </shape>
     </item>
 
@@ -24,6 +28,10 @@
                     android:endColor="#a0ffcb00"
                     android:angle="270"
                     />
+                <size
+                    android:height="6dp"
+                    android:width="6dp"
+                    />
             </shape>
         </clip>
     </item>
@@ -37,6 +45,10 @@
                     android:startColor="@color/main"
                     android:endColor="@color/main"
                     android:angle="270"
+                    />
+                <size
+                    android:height="6dp"
+                    android:width="6dp"
                     />
             </shape>
         </clip>
